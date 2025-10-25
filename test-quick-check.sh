@@ -38,7 +38,8 @@ cd "$SERVICE_A_DIR"
 echo ""
 echo "【测试1】AT模式数据一致性"
 echo "-------------------------------------------"
-if mvn -q test -Dtest=ATModeIntegrationTest#testDataConsistency -DfailIfNoTests=false 2>&1 | grep -q "BUILD SUCCESS"; then
+mvn -q test -Dtest=ATModeIntegrationTest#testDataConsistency -DfailIfNoTests=false > /dev/null
+if [[ $? == 0 ]]; then
     echo -e "${GREEN}✓ AT模式测试通过${NC}"
 else
     echo -e "${RED}✗ AT模式测试失败${NC}"
@@ -48,7 +49,8 @@ fi
 echo ""
 echo "【测试2】TCC模式数据一致性"
 echo "-------------------------------------------"
-if mvn -q test -Dtest=TCCModeIntegrationTest#testTCCDataConsistency -DfailIfNoTests=false 2>&1 | grep -q "BUILD SUCCESS"; then
+mvn -q test -Dtest=TCCModeIntegrationTest#testTCCDataConsistency -DfailIfNoTests=false > /dev/null
+if [[ $? == 0 ]]; then
     echo -e "${GREEN}✓ TCC模式测试通过${NC}"
 else
     echo -e "${RED}✗ TCC模式测试失败${NC}"
