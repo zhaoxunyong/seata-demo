@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-本项目是基于Seata框架的分布式事务技术验证Demo，实现了AT模式和TCC模式两种分布式事务解决方案，通过订单-库存的经典业务场景，验证Seata在微服务架构下的分布式事务一致性保障能力。
+本项目是基于Seata框架的分布式事务技术验证Demo，实现了AT模式、TCC模式和Saga模式三种分布式事务解决方案，通过订单-库存的经典业务场景，验证Seata在微服务架构下的分布式事务一致性保障能力。
 
 ## 技术栈
 
@@ -73,6 +73,18 @@ seata-demo/
 - `POST /order/create-tcc` - TCC模式正常提交
 - `POST /order/create-tcc-rollback` - TCC模式回滚场景
 
+### Saga模式验证
+
+**原理**：基于状态机引擎的长事务解决方案，通过服务编排实现正向操作和补偿操作
+
+**验证场景**：
+- ✅ 正向流程：订单创建（PROCESSING → SUCCESS）+ 库存扣减 → 完成
+- ✅ 补偿流程：模拟异常触发补偿，订单状态转为FAIL，库存回滚
+
+**接口**：
+- `POST /order-saga/create` - Saga模式正常提交
+- `POST /order-saga/create-rollback` - Saga模式回滚场景
+
 ## 快速开始
 
 ### 方式一：一键启动（推荐）
@@ -95,8 +107,6 @@ chmod +x start-all.sh stop-all.sh
 ```
 
 ### 方式二：手动启动
-
-#### 1. 环境准备
 
 #### 1. 环境准备
 
@@ -241,9 +251,41 @@ mvn spring-boot:run
    - 订单状态=CANCEL
    - 冻结库存释放回residue
 
+### Saga模式测试
+
+#### 场景5：Saga模式正常提交
+
+1. 打开Swagger UI：http://localhost:8081/swagger-ui/index.html
+2. 找到 `POST /order-saga/create` 接口
+3. 填写请求参数：
+
+```json
+{
+  "userId": "U001",
+  "productId": "P001",
+  "count": 10,
+  "amount": 100.00
+}
+```
+
+4. 执行请求
+5. 验证结果：
+   - Saga订单表新增记录，状态从PROCESSING转为SUCCESS
+   - Saga库存表used增加、residue减少，状态从PROCESSING转为SUCCESS
+
+#### 场景6：Saga模式补偿回滚
+
+1. 找到 `POST /order-saga/create-rollback` 接口
+2. 填写请求参数（同上）
+3. 执行请求
+4. 验证结果：
+   - 接口返回异常信息
+   - Saga订单表状态转为FAIL
+   - Saga库存表数据回滚，used减少、residue增加
+
 ### 数据验证SQL
 
-```sql
+```
 -- 查看AT模式订单
 SELECT * FROM seata_order.t_order ORDER BY id DESC LIMIT 5;
 
@@ -259,6 +301,12 @@ SELECT * FROM seata_storage.t_storage_tcc WHERE product_id = 'P002';
 -- 查看undo_log（AT模式专用）
 SELECT * FROM seata_order.undo_log ORDER BY id DESC LIMIT 5;
 SELECT * FROM seata_storage.undo_log ORDER BY id DESC LIMIT 5;
+
+-- 查看Saga模式订单
+SELECT * FROM seata_order.t_order_saga ORDER BY id DESC LIMIT 5;
+
+-- 查看Saga模式库存
+SELECT * FROM seata_storage.t_storage_saga WHERE product_id = 'P001';
 ```
 
 ## 关键配置说明
@@ -336,6 +384,14 @@ public interface XXXTCCService {
 - ✅ 订单状态流转（INIT → SUCCESS/CANCEL）
 - ✅ 幂等性处理
 - ✅ 空回滚处理
+
+### Saga模式
+
+- ✅ 状态机编排流程
+- ✅ 正向服务调用
+- ✅ 补偿服务调用
+- ✅ 订单状态流转（PROCESSING → SUCCESS/FAIL）
+- ✅ 库存扣减与补偿回滚
 
 ## 常见问题
 

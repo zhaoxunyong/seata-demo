@@ -72,25 +72,8 @@ if [ "$RESET_DATA" = "y" ] || [ "$RESET_DATA" = "Y" ]; then
     echo "2. 重置测试数据..."
     echo "-------------------------------------------"
     
-    docker exec -i seata-mysql mysql -uroot -proot123 << EOF
--- 清空订单数据
-USE seata_order;
-TRUNCATE TABLE t_order;
-TRUNCATE TABLE t_order_tcc;
-TRUNCATE TABLE undo_log;
-
--- 重置库存数据
-USE seata_storage;
-UPDATE t_storage SET used = 0, residue = 100 WHERE product_id = 'P001';
-UPDATE t_storage_tcc SET used = 0, frozen = 0, residue = 100 WHERE product_id = 'P002';
-TRUNCATE TABLE undo_log;
-
-SELECT 'AT模式库存数据:' AS info;
-SELECT product_id, total, used, residue FROM t_storage WHERE product_id IN ('P001', 'P003');
-
-SELECT 'TCC模式库存数据:' AS info;
-SELECT product_id, total, used, frozen, residue FROM t_storage_tcc WHERE product_id IN ('P002', 'P004');
-EOF
+    # 初始化表数据
+    docker exec -i seata-mysql mysql -uroot -proot123 < init-tables.sql
 
     echo -e "${GREEN}✓${NC} 测试数据已重置"
 else
