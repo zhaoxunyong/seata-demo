@@ -69,6 +69,12 @@ seata:
     type: file
   config:
     type: file
+  # Saga模式配置
+  saga:
+    enabled: true
+    state-machine:
+      resources: classpath*:saga/*.json
+      enable-async: true
 
 # Feign配置
 feign:

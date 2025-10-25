@@ -1,0 +1,103 @@
+{
+  "Name": "create-order-saga",
+  "Comment": "创建订单Saga流程",
+  "StartAt": "CreateOrder",
+  "States": {
+    "CreateOrder": {
+      "Type": "ServiceTask",
+      "ServiceName": "order-service",
+      "ServiceMethod": "createOrder",
+      "CompensateState": "CompensateOrder",
+      "Next": "ReduceStorage",
+      "Input": [
+        "$.userId",
+        "$.productId",
+        "$.count",
+        "$.amount"
+      ],
+      "Output": {
+        "orderCreated": "$.#root"
+      },
+      "Status": {
+        "#root == true": "SU",
+        "#root == false": "FA"
+      }
+    },
+    "CompensateOrder": {
+      "Type": "ServiceTask",
+      "ServiceName": "order-service",
+      "ServiceMethod": "compensateOrder",
+      "Input": [
+        "$.userId",
+        "$.productId"
+      ]
+    },
+    "ReduceStorage": {
+      "Type": "ServiceTask",
+      "ServiceName": "storage-service",
+      "ServiceMethod": "reduceStorage",
+      "CompensateState": "CompensateStorage",
+      "Next": "CompleteOrder",
+      "Input": [
+        "$.productId",
+        "$.count"
+      ],
+      "Output": {
+        "storageReduced": "$.#root"
+      },
+      "Status": {
+        "#root == true": "SU",
+        "#root == false": "FA"
+      }
+    },
+    "CompensateStorage": {
+      "Type": "ServiceTask",
+      "ServiceName": "storage-service",
+      "ServiceMethod": "compensateStorage",
+      "Input": [
+        "$.productId",
+        "$.count"
+      ]
+    },
+    "CompleteOrder": {
+      "Type": "ServiceTask",
+      "ServiceName": "order-service",
+      "ServiceMethod": "completeOrder",
+      "Next": "CompleteStorage",
+      "Input": [
+        "$.userId",
+        "$.productId"
+      ],
+      "Output": {
+        "orderCompleted": "$.#root"
+      },
+      "Status": {
+        "#root == true": "SU",
+        "#root == false": "FA"
+      }
+    },
+    "CompleteStorage": {
+      "Type": "ServiceTask",
+      "ServiceName": "storage-service",
+      "ServiceMethod": "completeStorage",
+      "Input": [
+        "$.productId"
+      ],
+      "Output": {
+        "storageCompleted": "$.#root"
+      },
+      "Status": {
+        "#root == true": "SU",
+        "#root == false": "FA"
+      }
+    },
+    "Succeed": {
+      "Type": "Succeed"
+    },
+    "Fail": {
+      "Type": "Fail",
+      "ErrorCode": "DEFAULT_ERROR_CODE",
+      "Message": "流程执行失败"
+    }
+  }
+}

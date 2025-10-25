@@ -29,4 +29,31 @@ public interface StorageFeignClient {
      */
     @PostMapping("/storage/tcc/reduce")
     Result<Void> reduceTcc(@RequestBody StorageDTO dto);
+
+    /**
+     * 扣减库存（Saga模式）
+     *
+     * @param dto 库存扣减DTO
+     * @return 操作结果
+     */
+    @PostMapping("/storage-saga/reduce")
+    Result<Void> reduceSaga(@RequestBody StorageDTO dto);
+
+    /**
+     * 补偿库存（Saga模式）
+     *
+     * @param dto 库存补偿DTO
+     * @return 操作结果
+     */
+    @PostMapping("/storage-saga/compensate")
+    Result<Void> compensateSaga(@RequestBody StorageDTO dto);
+
+    /**
+     * 完成库存操作（Saga模式）
+     *
+     * @param dto 库存完成DTO
+     * @return 操作结果
+     */
+    @PostMapping("/storage-saga/complete")
+    Result<Void> completeSaga(@RequestBody StorageDTO dto);
 }

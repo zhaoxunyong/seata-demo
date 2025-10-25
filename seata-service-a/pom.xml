@@ -27,6 +27,7 @@
         <mybatis-plus.version>3.4.3</mybatis-plus.version>
         <swagger.version>3.0.0</swagger.version>
         <lombok.version>1.18.20</lombok.version>
+        <seata.version>1.4.2</seata.version>
     </properties>
 
     <dependencies>
@@ -46,6 +47,13 @@
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+
+        <!-- Seata Saga Engine -->
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-spring-boot-starter</artifactId>
+            <version>${seata.version}</version>
         </dependency>
 
         <!-- MyBatis Plus -->
