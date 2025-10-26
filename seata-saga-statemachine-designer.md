@@ -87,8 +87,9 @@ cd seata/saga/seata-saga-statemachine-designer
 
 2. 安装依赖并启动
 ```bash
-npm install --legacy-peer-deps
-npm run
+nvm install v12.22.12
+npm install
+npm start
 ```
 
 打包
