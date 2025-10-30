@@ -59,14 +59,18 @@ else
         docker start seata-server
     else
         echo "拉取Seata Server镜像..."
-        docker pull seataio/seata-server:1.4.2
+        docker pull seataio/seata-server:1.5.1
+        #docker run -d -p 8091:8091 -p 7091:7091  --name seata-server seataio/seata-server:1.5.1
+        #docker cp seata-server:/seata-server/resources /Developer/workspace/seata-demo/seata-config
+        #docker rm -vf seata-server
         echo "创建并启动Seata Server容器..."
-        docker run -d \
-          --name seata-server \
-          -p 8091:8091 \
-          -e SEATA_IP=127.0.0.1 \
-          -e SEATA_PORT=8091 \
-          seataio/seata-server:1.4.2
+        docker run -d --name seata-server \
+            -p 8091:8091 \
+            -p 7091:7091 \
+            -e SEATA_IP=localhost \
+            -e SEATA_PORT=8091 \
+            -v /Developer/workspace/seata-demo/seata-config:/seata-server/resources  \
+            seataio/seata-server:1.5.1
     fi
     echo "等待Seata Server启动..."
     sleep 5
