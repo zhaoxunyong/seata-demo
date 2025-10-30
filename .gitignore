@@ -53,3 +53,4 @@ application-local.yml
 
 # Other
 node_modules/
+seata-config/
