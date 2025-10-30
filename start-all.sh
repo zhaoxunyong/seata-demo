@@ -63,13 +63,14 @@ else
         #docker run -d -p 8091:8091 -p 7091:7091  --name seata-server seataio/seata-server:1.5.1
         #docker cp seata-server:/seata-server/resources /Developer/workspace/seata-demo/seata-config
         #docker rm -vf seata-server
+        #https://github.com/apache/incubator-seata/blob/v1.5.1/script/server/db/mysql.sql
         echo "创建并启动Seata Server容器..."
         docker run -d --name seata-server \
             -p 8091:8091 \
             -p 7091:7091 \
             -e SEATA_IP=localhost \
             -e SEATA_PORT=8091 \
-            -v /Developer/workspace/seata-demo/seata-config:/seata-server/resources  \
+            -v /Developer/workspace/seata-demo/seata-config/resources:/seata-server/resources  \
             seataio/seata-server:1.5.1
     fi
     echo "等待Seata Server启动..."

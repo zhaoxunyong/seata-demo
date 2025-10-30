@@ -74,6 +74,7 @@ if [ "$RESET_DATA" = "y" ] || [ "$RESET_DATA" = "Y" ]; then
     
     # 初始化表数据
     docker exec -i seata-mysql mysql -uroot -proot123 < init-tables.sql
+    #docker exec -i seata-mysql mysql -uroot -proot123 < mysql.sql
 
     echo -e "${GREEN}✓${NC} 测试数据已重置"
 else
