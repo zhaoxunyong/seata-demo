@@ -1,0 +1,96 @@
+server:
+  port: 8082
+  undertow:
+    max-http-post-size: 0
+    buffer-size: 1024
+    direct-buffers: true
+    threads:
+      io: 8
+      worker: 64
+
+feign:
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+    max-connections: 1000
+    max-connections-per-route: 100
+
+hystrix:
+  threadpool:
+    default:
+      coreSize: 500
+
+spring:
+  application:
+    name: tcc-transfer-out
+  # cloud:
+  #   loadbalancer:
+  #     ribbon:
+  #       enabled: false
+  #   consul:
+  #     host: 127.0.0.1
+  #     port: 8500
+  #     discovery:
+  #       heartbeat:
+  #         enabled: true
+  #         ttl-value: 5
+  #         ttl-unit: s
+  #       prefer-ip-address: true
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/tcc_test_out?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    platform: mysql
+
+    #连接池的配置信息
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    minIdle: 5
+    validationQuery: SELECT 1 FROM DUAL
+    initialSize: 5
+    maxWait: 60000
+    filters: stat,wall,log4j2
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    testOnBorrow: false
+    testWhileIdle: true
+    minEvictableIdleTimeMillis: 300000
+    timeBetweenEvictionRunsMillis: 60000
+    testOnReturn: false
+    maxActive: 200
+
+    druid:
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        login-password: admin
+        login-username: admin
+        enabled: true
+        allow:
+
+
+# Seata 配置项，对应 SeataProperties 类
+seata:
+  enable-auto-data-source-proxy: false
+  application-id: ${spring.application.name} # Seata 应用编号，默认为 ${spring.application.name}
+  tx-service-group: ${spring.application.name}-group # Seata 事务组编号，用于 TC 集群名
+  # Seata 服务配置项，对应 ServiceProperties 类
+  service:
+    # 虚拟组和分组的映射
+    vgroup-mapping:
+      tcc-transfer-out-group: seata-server
+    # 分组和 Seata 服务的映射
+    grouplist:
+      seata-server: 127.0.0.1:8091
+  tcc-fence:
+    config:
+      clean-mode: minute
+      clean-period: 1
+  # Seata 注册中心配置项，对应 RegistryProperties 类
+#  registry:
+#    type: consul # 注册中心类型，默认为 file
+#    consul:
+#      cluster: seata-server #
+#      serverAddr: 127.0.0.1:8500  # Consul 服务地址
