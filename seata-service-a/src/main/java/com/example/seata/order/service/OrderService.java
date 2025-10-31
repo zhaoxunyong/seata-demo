@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 import java.math.BigDecimal;
 
 /**
@@ -31,9 +32,6 @@ public class OrderService {
 
     @Resource
     private OrderTCCService orderTCCService;
-
-    @Resource
-    private OrderSagaService orderSagaService;
 
     /**
      * 创建订单（AT模式 - 正常提交场景）
@@ -201,114 +199,5 @@ public class OrderService {
         // 3. 模拟异常，触发TCC回滚
         log.warn("订单服务：模拟业务异常，触发TCC Cancel回滚");
         throw new BusinessException("模拟异常：业务处理失败，触发TCC模式Cancel回滚");
-    }
-
-    /**
-     * 创建订单（Saga模式 - 正常提交场景）
-     *
-     * @param orderDTO 订单DTO
-     * @return 订单创建结果
-     */
-    public String createOrderSaga(OrderDTO orderDTO) {
-        log.info("订单服务：开始创建订单（Saga模式），订单信息={}", orderDTO);
-
-        // 1. 创建订单（Saga正向操作）
-        boolean orderResult = orderSagaService.createOrder(
-                orderDTO.getUserId(),
-                orderDTO.getProductId(),
-                orderDTO.getCount(),
-                orderDTO.getAmount().toString()
-        );
-
-        if (!orderResult) {
-            throw new BusinessException("Saga：创建订单失败");
-        }
-        log.info("订单服务：Saga创建订单成功");
-
-        // 2. 调用库存服务扣减库存（Saga正向操作）
-        log.info("订单服务：开始调用库存服务扣减库存（Saga模式）");
-        StorageDTO storageDTO = new StorageDTO(orderDTO.getProductId(), orderDTO.getCount());
-        Result<Void> storageResult = storageFeignClient.reduceSaga(storageDTO);
-
-        if (storageResult.getCode() != 200) {
-            log.error("订单服务：Saga扣减库存失败，{}", storageResult.getMessage());
-            throw new BusinessException("Saga扣减库存失败：" + storageResult.getMessage());
-        }
-        log.info("订单服务：Saga扣减库存成功");
-
-        // 3. 完成订单（Saga完成操作）
-        boolean completeOrderResult = orderSagaService.completeOrder(
-                orderDTO.getUserId(),
-                orderDTO.getProductId()
-        );
-
-        if (!completeOrderResult) {
-            log.error("订单服务：Saga完成订单失败");
-            throw new BusinessException("Saga完成订单失败");
-        }
-        log.info("订单服务：Saga完成订单成功");
-
-        // 4. 完成库存操作（Saga完成操作）
-        Result<Void> completeStorageResult = storageFeignClient.completeSaga(storageDTO);
-        if (completeStorageResult.getCode() != 200) {
-            log.error("订单服务：Saga完成库存操作失败，{}", completeStorageResult.getMessage());
-            throw new BusinessException("Saga完成库存操作失败：" + completeStorageResult.getMessage());
-        }
-        log.info("订单服务：Saga完成库存操作成功");
-
-        log.info("订单服务：Saga模式订单创建完成");
-        return "Saga订单创建成功";
-    }
-
-    /**
-     * 创建订单（Saga模式 - 回滚场景）
-     * 模拟异常触发Saga回滚
-     *
-     * @param orderDTO 订单DTO
-     * @return 订单创建结果
-     */
-    public String createOrderSagaWithRollback(OrderDTO orderDTO) {
-        log.info("订单服务：开始创建订单（Saga模式-回滚场景），订单信息={}", orderDTO);
-
-        // 1. 创建订单（Saga正向操作）
-        boolean orderResult = orderSagaService.createOrder(
-                orderDTO.getUserId(),
-                orderDTO.getProductId(),
-                orderDTO.getCount(),
-                orderDTO.getAmount().toString()
-        );
-
-        if (!orderResult) {
-            throw new BusinessException("Saga：创建订单失败");
-        }
-        log.info("订单服务：Saga创建订单成功");
-
-        // 2. 调用库存服务扣减库存（Saga正向操作）
-        log.info("订单服务：开始调用库存服务扣减库存（Saga模式）");
-        StorageDTO storageDTO = new StorageDTO(orderDTO.getProductId(), orderDTO.getCount());
-        Result<Void> storageResult = storageFeignClient.reduceSaga(storageDTO);
-
-        if (storageResult.getCode() != 200) {
-            log.error("订单服务：Saga扣减库存失败，{}", storageResult.getMessage());
-            // 补偿订单
-            orderSagaService.compensateOrder(orderDTO.getUserId(), orderDTO.getProductId());
-            throw new BusinessException("Saga扣减库存失败：" + storageResult.getMessage());
-        }
-        log.info("订单服务：Saga扣减库存成功");
-
-        // 3. 模拟异常，触发Saga回滚
-        log.warn("订单服务：模拟业务异常，触发Saga补偿回滚");
-        
-        // 补偿订单
-        orderSagaService.compensateOrder(orderDTO.getUserId(), orderDTO.getProductId());
-        
-        // 补偿库存
-        Result<Void> compensateStorageResult = storageFeignClient.compensateSaga(storageDTO);
-        if (compensateStorageResult.getCode() != 200) {
-            log.error("订单服务：Saga补偿库存操作失败，{}", compensateStorageResult.getMessage());
-            throw new BusinessException("Saga补偿库存操作失败：" + compensateStorageResult.getMessage());
-        }
-        
-        throw new BusinessException("模拟异常：业务处理失败，触发Saga模式补偿回滚");
     }
 }

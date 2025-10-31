@@ -102,22 +102,6 @@ CREATE TABLE undo_log (
   PRIMARY KEY (id),
   UNIQUE KEY ux_undo_log (xid, branch_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Saga模式订单表
-CREATE TABLE t_order_saga (
-  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '订单ID',
-  user_id VARCHAR(50) NOT NULL COMMENT '用户ID',
-  product_id VARCHAR(50) NOT NULL COMMENT '商品ID',
-  count INT NOT NULL COMMENT '购买数量',
-  amount DECIMAL(10,2) NOT NULL COMMENT '订单金额',
-  status VARCHAR(20) NOT NULL DEFAULT 'INIT' COMMENT '订单状态：INIT-初始化，PROCESSING-处理中，SUCCESS-成功，FAIL-失败',
-  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY idx_user_id (user_id),
-  KEY idx_product_id (product_id),
-  KEY idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
 **库存数据库（seata_storage）**：
@@ -165,21 +149,6 @@ CREATE TABLE undo_log (
   PRIMARY KEY (id),
   UNIQUE KEY ux_undo_log (xid, branch_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Saga模式库存表
-CREATE TABLE t_storage_saga (
-  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '库存ID',
-  product_id VARCHAR(50) NOT NULL COMMENT '商品ID',
-  total INT NOT NULL COMMENT '总库存',
-  used INT NOT NULL DEFAULT '0' COMMENT '已用库存',
-  residue INT NOT NULL COMMENT '剩余可用库存',
-  status VARCHAR(20) NOT NULL DEFAULT 'INIT' COMMENT '订单状态：INIT-初始化，PROCESSING-处理中，SUCCESS-成功，FAIL-失败',
-  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_product_id (product_id),
-  KEY idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
 #### 初始化测试数据
@@ -195,16 +164,6 @@ INSERT INTO t_storage (product_id, total, used, residue) VALUES
 INSERT INTO t_storage_tcc (product_id, total, used, frozen, residue) VALUES
 ('P002', 100, 0, 0, 100),
 ('P004', 10, 0, 0, 10);
-
--- Saga模式订单数据
-INSERT INTO t_order_saga (user_id, product_id, count, amount, status) VALUES
-('U001', 'P005', 1, 50.00, 'INIT'),
-('U002', 'P006', 2, 40.00, 'INIT');
-
--- Saga模式库存数据
-INSERT INTO t_storage_saga (product_id, total, used, residue, status) VALUES
-('P005', 100, 0, 100, 'INIT'),
-('P006', 20, 0, 20, 'INIT');
 ```
 
 ### 3. Seata Server部署

@@ -21,7 +21,17 @@
       "Status": {
         "#root == true": "SU",
         "#root == false": "FA"
-      }
+      },
+      "Retry": [
+        {
+          "Exceptions": [
+            "java.lang.RuntimeException"
+          ],
+          "IntervalSeconds": 3,
+          "MaxRetryCount": 10,
+          "BackoffRate": 1.5
+        }
+      ]
     },
     "CompensateOrder": {
       "Type": "ServiceTask",
@@ -48,7 +58,17 @@
       "Status": {
         "#root == true": "SU",
         "#root == false": "FA"
-      }
+      },
+      "Retry": [
+        {
+          "Exceptions": [
+            "java.lang.RuntimeException"
+          ],
+          "IntervalSeconds": 3,
+          "MaxRetryCount": 10,
+          "BackoffRate": 1.5
+        }
+      ]
     },
     "CompensateStorage": {
       "Type": "ServiceTask",
@@ -74,7 +94,17 @@
       "Status": {
         "#root == true": "SU",
         "#root == false": "FA"
-      }
+      },
+      "Retry": [
+        {
+          "Exceptions": [
+            "java.lang.RuntimeException"
+          ],
+          "IntervalSeconds": 3,
+          "MaxRetryCount": 10,
+          "BackoffRate": 1.5
+        }
+      ]
     },
     "CompleteStorage": {
       "Type": "ServiceTask",
@@ -89,7 +119,17 @@
       "Status": {
         "#root == true": "SU",
         "#root == false": "FA"
-      }
+      },
+      "Retry": [
+        {
+          "Exceptions": [
+            "java.lang.RuntimeException"
+          ],
+          "IntervalSeconds": 3,
+          "MaxRetryCount": 10,
+          "BackoffRate": 1.5
+        }
+      ]
     },
     "Succeed": {
       "Type": "Succeed"

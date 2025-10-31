@@ -70,7 +70,7 @@ else
             -p 7091:7091 \
             -e SEATA_IP=localhost \
             -e SEATA_PORT=8091 \
-            -v /Developer/workspace/seata-demo/seata-config/resources:/seata-server/resources  \
+            -v /Developer/workspace/seata-demo/seata-config/resources/application.yml:/seata-server/resources/application.yml  \
             seataio/seata-server:1.5.1
     fi
     echo "等待Seata Server启动..."

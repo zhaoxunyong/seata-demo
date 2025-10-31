@@ -43,7 +43,7 @@
             <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
         </dependency>
 
-        <!-- Seata Saga Engine -->
+        <!-- Seata Engine -->
         <dependency>
             <groupId>io.seata</groupId>
             <artifactId>seata-spring-boot-starter</artifactId>

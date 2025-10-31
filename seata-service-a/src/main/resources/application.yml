@@ -69,12 +69,6 @@ seata:
     type: file
   config:
     type: file
-  # Saga模式配置
-  saga:
-    enabled: true
-    state-machine:
-      resources: classpath*:saga/*.json
-      enable-async: true
 
 # Feign配置
 feign:
@@ -82,7 +76,7 @@ feign:
     config:
       default:
         connect-timeout: 30000
-        read-timeout: 30000
+        read-timeout: 1800000
 
 # 日志配置
 logging:

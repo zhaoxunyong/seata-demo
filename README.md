@@ -2,7 +2,7 @@
 
 ### 1. 项目整体架构设计
 
-这是一个基于Seata框架的分布式事务技术验证项目，采用微服务架构设计，通过经典的"订单-库存"业务场景验证三种分布式事务模式（AT、TCC、Saga）的实现。
+这是一个基于Seata框架的分布式事务技术验证项目，采用微服务架构设计，通过经典的"订单-库存"业务场景验证三种分布式事务模式（AT、TCC）的实现。
 
 ```mermaid
 graph TB
@@ -103,26 +103,6 @@ sequenceDiagram
 - **三阶段控制**：`@LocalTCC`和`@TwoPhaseBusinessAction`
 - **资源预留**：Try阶段冻结资源，Confirm阶段确认使用
 - **数据表**：`t_order_tcc`、`t_storage_tcc`（增加frozen字段）
-
-#### 3.3 Saga模式架构
-```mermaid
-stateDiagram-v2
-    [*] --> CreateOrder: 开始
-    CreateOrder --> ReduceStorage: 订单创建成功
-    ReduceStorage --> CompleteOrder: 库存扣减成功
-    CompleteOrder --> CompleteStorage: 订单完成
-    CompleteStorage --> [*]: 流程结束
-    
-    CreateOrder --> CompensateOrder: 创建失败
-    ReduceStorage --> CompensateStorage: 扣减失败
-    CompensateStorage --> CompensateOrder: 补偿库存
-    CompensateOrder --> [*]: 补偿完成
-```
-
-**核心特点**：
-- **状态机编排**：通过`create-order-saga.json`定义业务流程
-- **正向补偿**：每个正向操作对应补偿操作
-- **数据表**：`t_order_saga`、`t_storage_saga`（增加status字段）
 
 ### 4. 服务间通信和数据流
 

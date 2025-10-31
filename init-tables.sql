@@ -55,22 +55,6 @@ CREATE TABLE undo_log (
   UNIQUE KEY ux_undo_log (xid, branch_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Saga模式订单表
-CREATE TABLE t_order_saga (
-  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '订单ID',
-  user_id VARCHAR(50) NOT NULL COMMENT '用户ID',
-  product_id VARCHAR(50) NOT NULL COMMENT '商品ID',
-  count INT NOT NULL COMMENT '购买数量',
-  amount DECIMAL(10,2) NOT NULL COMMENT '订单金额',
-  status VARCHAR(20) NOT NULL DEFAULT 'INIT' COMMENT '订单状态：INIT-初始化，PROCESSING-处理中，SUCCESS-成功，FAIL-失败',
-  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY idx_user_id (user_id),
-  KEY idx_product_id (product_id),
-  KEY idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 USE seata_storage;
 
 -- AT模式库存表
@@ -114,39 +98,17 @@ CREATE TABLE undo_log (
   UNIQUE KEY ux_undo_log (xid, branch_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Saga模式库存表
-CREATE TABLE t_storage_saga (
-  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '库存ID',
-  product_id VARCHAR(50) NOT NULL COMMENT '商品ID',
-  total INT NOT NULL COMMENT '总库存',
-  used INT NOT NULL DEFAULT '0' COMMENT '已用库存',
-  residue INT NOT NULL COMMENT '剩余可用库存',
-  status VARCHAR(20) NOT NULL DEFAULT 'INIT' COMMENT '订单状态：INIT-初始化，PROCESSING-处理中，SUCCESS-成功，FAIL-失败',
-  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_product_id (product_id),
-  KEY idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 -- 清空订单数据
 USE seata_order;
 TRUNCATE TABLE t_order;
 TRUNCATE TABLE t_order_tcc;
-TRUNCATE TABLE t_order_saga;
 TRUNCATE TABLE undo_log;
 
 -- 清空库存数据
 USE seata_storage;
 TRUNCATE TABLE t_storage;
 TRUNCATE TABLE t_storage_tcc;
-TRUNCATE TABLE t_storage_saga;
 TRUNCATE TABLE undo_log;
-
--- 初始化库存Saga表数据
-INSERT INTO seata_storage.t_storage_saga (id, product_id, total, used, residue, status, create_time, update_time) 
-VALUES (1, 'P001', 100, 0, 100, 'INIT', NOW(), NOW()) 
-ON DUPLICATE KEY UPDATE status = 'INIT', update_time = NOW();
 
 -- AT模式库存数据
 INSERT INTO seata_storage.t_storage (product_id, total, used, residue) VALUES
@@ -163,6 +125,3 @@ SELECT product_id, total, used, residue FROM t_storage WHERE product_id IN ('P00
 
 SELECT 'TCC模式库存数据:' AS info;
 SELECT product_id, total, used, frozen, residue FROM t_storage_tcc WHERE product_id IN ('P002', 'P004');
-
-SELECT 'Saga模式库存数据:' AS info;
-SELECT product_id, total, used, residue FROM t_storage_saga WHERE product_id IN ('P001');
