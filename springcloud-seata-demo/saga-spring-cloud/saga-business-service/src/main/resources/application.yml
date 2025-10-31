@@ -53,6 +53,22 @@ seata:
 #      cluster: default # 使用的 Seata 分组
 #      namespace: # Nacos 命名空间
 #      serverAddr: 127.0.0.1:8848  # Nacos 服务地址
+  # Saga 状态机配置
+  saga:
+    # 状态机重试配置
+    retry:
+      # 默认重试配置
+      default:
+        interval-seconds: 3 # 重试间隔时间(秒)
+        max-attempts: 100 # 最大重试次数
+        backoff-rate: 2.0 # 退避倍率
+    # 状态机异步执行配置
+    async-execution: true
+    # 状态机线程池配置
+    thread-pool:
+      core-pool-size: 2
+      max-pool-size: 5
+      queue-capacity: 100
 
 # Swagger配置
 springfox:

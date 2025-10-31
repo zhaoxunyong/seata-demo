@@ -20,6 +20,13 @@
       "Output":{
         "orderResult":"$.#root"
       },
+      "Retry":[
+        {
+          "IntervalSeconds":3,
+          "MaxAttempts":100,
+          "BackoffRate":2.0
+        }
+      ],
       "Status":{
         "#root == true":"SU",
         "#root == false":"FA",
@@ -62,6 +69,13 @@
       "Output":{
         "accountResult":"$.#root"
       },
+      "Retry":[
+        {
+          "IntervalSeconds":3,
+          "MaxAttempts":100,
+          "BackoffRate":2.0
+        }
+      ],
       "Status":{
         "#root == true":"SU",
         "#root == false":"FA",
@@ -104,6 +118,13 @@
       "Output":{
         "productResult":"$.#root"
       },
+      "Retry":[
+        {
+          "IntervalSeconds":3,
+          "MaxAttempts":100,
+          "BackoffRate":2.0
+        }
+      ],
       "Status":{
         "#root == true":"SU",
         "#root == false":"FA",
