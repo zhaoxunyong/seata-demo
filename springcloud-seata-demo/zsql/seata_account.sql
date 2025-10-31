@@ -1,3 +1,8 @@
+DROP DATABASE IF EXISTS seata_account;
+CREATE DATABASE seata_account DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+
+USE seata_account;
 -- ----------------------------
 -- Table structure for account
 -- ----------------------------
