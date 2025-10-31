@@ -147,6 +147,13 @@
       "ServiceMethod":"revokeOrder",
       "Input":[
         "$.[orderId]"
+      ],
+      "Retry":[
+        {
+          "IntervalSeconds":3,
+          "MaxAttempts":100,
+          "BackoffRate":2.0
+        }
       ]
     },
     "compensateAccount":{
@@ -157,6 +164,13 @@
       "Input":[
         "$.[userId]",
         "$.[amount]"
+      ],
+      "Retry":[
+        {
+          "IntervalSeconds":3,
+          "MaxAttempts":100,
+          "BackoffRate":2.0
+        }
       ]
     },
     "compensateStock":{
@@ -167,6 +181,13 @@
       "Input":[
         "$.[productId]",
         "$.[count]"
+      ],
+      "Retry":[
+        {
+          "IntervalSeconds":3,
+          "MaxAttempts":100,
+          "BackoffRate":2.0
+        }
       ]
     },
     "CompensationTrigger":{

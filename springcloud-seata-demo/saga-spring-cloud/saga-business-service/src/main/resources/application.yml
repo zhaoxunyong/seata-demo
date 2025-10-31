@@ -62,8 +62,19 @@ seata:
         interval-seconds: 3 # 重试间隔时间(秒)
         max-attempts: 100 # 最大重试次数
         backoff-rate: 2.0 # 退避倍率
+      # 补偿服务重试配置
+      compensate:
+        interval-seconds: 3 # 补偿重试间隔时间(秒)
+        max-attempts: 100 # 补偿最大重试次数
+        backoff-rate: 2.0 # 补偿退避倍率
     # 状态机异步执行配置
     async-execution: true
+    # 状态机恢复配置
+    recovery:
+      # 服务重启后自动恢复未完成的补偿操作
+      auto-compensate: true
+      # 恢复策略：compensate(向后补偿) | retry(向前重试)
+      strategy: compensate
     # 状态机线程池配置
     thread-pool:
       core-pool-size: 2
